@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rifas Solidarias - Elige tu Sorteo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <h1>🎗️ Rifas Solidarias</h1>
+            <p>Participa y ayuda a causas benéficas</p>
+        </div>
+    </header>
+
+    <!-- Selector de Rifa -->
+    <section class="rifa-selector">
+        <div class="container">
+            <h2>🎯 Elige tu Rifa</h2>
+            <div class="rifas-grid" id="rifasGrid">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Cargando rifas disponibles...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contenido de Rifa Seleccionada -->
+    <section class="rifa-content" id="rifaContent" style="display: none;">
+        <div class="container">
+            <button class="btn-back" id="btnBack">← Volver a Rifas</button>
+            
+            <!-- Info de la Rifa -->
+            <div class="rifa-header" id="rifaHeader">
+                <h2 id="rifaTitle">Título de la Rifa</h2>
+                <p id="rifaDescription">Descripción de la rifa</p>
+                <div class="rifa-meta">
+                    <span class="meta-item">🎫 Precio: $<span id="rifaPrecio">0</span></span>
+                    <span class="meta-item">📅 Sorteo: <span id="rifaFecha">--/--/----</span></span>
+                    <span class="meta-item">🎯 Meta: $<span id="rifaMeta">0</span></span>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number" id="statVendidos">0</span>
+                    <span class="stat-label">Vendidos</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="statDisponibles">0</span>
+                    <span class="stat-label">Disponibles</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="statRecaudado">$0</span>
+                    <span class="stat-label">Recaudado</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="statPorcentaje">0%</span>
+                    <span class="stat-label">Completado</span>
+                </div>
+            </div>
+
+            <!-- Barra de Progreso -->
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span>Progreso de la rifa</span>
+                    <span class="progress-goal">Meta: $<span id="metaAmount">0</span></span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0% completado</div>
+            </div>
+
+            <!-- Grid de Números -->
+            <div class="numbers-section">
+                <h3>🎫 Elige tu Número</h3>
+                <div class="numbers-grid" id="numbersGrid">
+                    <!-- Los números se cargan dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Últimos Ganadores -->
+            <div class="winners-section" id="winnersSection" style="display: none;">
+                <h3>🏆 Últimos Ganadores</h3>
+                <div id="winnersList" class="winners-list">
+                    <!-- Ganadores se cargan aquí -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal de Compra -->
+    <div class="modal" id="compraModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>Comprar Número <span id="modalNumero"></span></h3>
+            <form id="compraForm">
+                <input type="hidden" id="numeroSeleccionado">
+                <div class="form-group">
+                    <label for="nombreComprador">Nombre completo:</label>
+                    <input type="text" id="nombreComprador" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefonoComprador">Teléfono:</label>
+                    <input type="tel" id="telefonoComprador" required>
+                </div>
+                <div class="form-group">
+                    <label for="emailComprador">Email:</label>
+                    <input type="email" id="emailComprador">
+                </div>
+                <div class="payment-info">
+                    <h4>💳 Método de Pago</h4>
+                    <p>Una vez completes el formulario, se abrirá WhatsApp para coordinar el pago.</p>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">📱 Continuar a WhatsApp</button>
+                    <button type="button" class="btn-secondary" id="btnCancelarCompra">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2024 Rifas Solidarias. Todos los derechos reservados.</p>
+            <a href="admin.html" class="admin-link">🔐 Acceso Administrativo</a>
+        </div>
+    </footer>
+
+    <!-- Parse SDK -->
+    <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
+
+    <script>
+        // CONFIGURACIÓN BACK4APP
+        Parse.initialize("NNxoqUEYiTkyO1MxAmxF6lGPeHhmqXUxG8bZGyPr", "hO0qRKANPmDLu3spkcDLLTBTeYIQSfCNJg8T0dUH");
+        Parse.serverURL = "https://parseapi.back4app.com/";
+
+        console.log('✅ Back4app configurado para página principal');
+
+        class SistemaRifas {
+            constructor() {
+                this.rifaActual = null;
+                this.numerosRifa = [];
+                this.ganadores = [];
+                this.config = {
+                    whatsappNumber: '+5491112345678',
+                    whatsappMessage: 'Hola! Quiero comprar el número {numero} de la rifa {rifa}. Mi nombre es {nombre}'
+                };
+                this.init();
+            }
+
+            async init() {
+                console.log('🚀 Iniciando sistema de rifas...');
+                await this.cargarConfiguracion();
+                this.setupEventListeners();
+                await this.cargarRifas();
+                await this.cargarGanadores();
+            }
+
+            async cargarConfiguracion() {
+                try {
+                    const Config = Parse.Object.extend("Config");
+                    const query = new Parse.Query(Config);
+                    const config = await query.first();
+                    
+                    if (config) {
+                        this.config.whatsappNumber = config.get('whatsappNumber') || this.config.whatsappNumber;
+                        this.config.whatsappMessage = config.get('whatsappMessage') || this.config.whatsappMessage;
+                    }
+                } catch (error) {
+                    console.log('Usando configuración por defecto');
+                }
+            }
+
+            setupEventListeners() {
+                // Navegación
+                document.getElementById('btnBack').addEventListener('click', () => {
+                    this.volverARifas();
+                });
+
+                // Modal de compra
+                const compraForm = document.getElementById('compraForm');
+                compraForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.procesarCompra();
+                });
+
+                document.getElementById('btnCancelarCompra').addEventListener('click', () => {
+                    this.cerrarModal();
+                });
+
+                document.querySelector('.close-modal').addEventListener('click', () => {
+                    this.cerrarModal();
+                });
+
+                // Cerrar modal al hacer clic fuera
+                window.addEventListener('click', (e) => {
+                    if (e.target === document.getElementById('compraModal')) {
+                        this.cerrarModal();
+                    }
+                });
+            }
+
+            async cargarRifas() {
+                try {
+                    const Rifa = Parse.Object.extend("Rifa");
+                    const query = new Parse.Query(Rifa);
+                    query.equalTo('estado', 'activa');
+                    query.ascending('createdAt');
+                    const results = await query.find();
+
+                    this.mostrarRifas(results);
+                } catch (error) {
+                    console.error('Error cargando rifas:', error);
+                    this.mostrarError('Error al cargar las rifas. Intenta más tarde.');
+                }
+            }
+
+            mostrarRifas(rifas) {
+                const container = document.getElementById('rifasGrid');
+
+                if (rifas.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-rifas">
+                            <div class="icon">🎯</div>
+                            <h3>No hay rifas disponibles</h3>
+                            <p>Vuelve pronto para participar en nuestras próximas rifas solidarias.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = rifas.map(rifa => {
+                    const vendidos = rifa.get('numerosVendidos') || 0;
+                    const total = rifa.get('totalNumeros') || 0;
+                    const porcentaje = total > 0 ? (vendidos / total) * 100 : 0;
+                    const recaudado = vendidos * rifa.get('precioNumero');
+
+                    return `
+                        <div class="rifa-card" data-rifa-id="${rifa.id}">
+                            ${rifa.get('estado') === 'sorteada' ? '<div class="sold-out-badge">🎉 SORTEADA</div>' : ''}
+                            <div class="rifa-status status-active">ACTIVA</div>
+                            <h3>${rifa.get('titulo')}</h3>
+                            <p class="rifa-desc">${rifa.get('descripcion') || 'Sin descripción'}</p>
+                            <div class="rifa-meta">
+                                <span class="meta-item">🎫 $${rifa.get('precioNumero')}</span>
+                                <span class="meta-item">📅 ${new Date(rifa.get('fechaSorteo')).toLocaleDateString()}</span>
+                                <span class="meta-item">🎯 $${rifa.get('metaRecaudacion')}</span>
+                            </div>
+                            <div class="rifa-stats">
+                                <div class="stat-mini">
+                                    <span class="number">${vendidos}</span>
+                                    <span class="label">Vendidos</span>
+                                </div>
+                                <div class="stat-mini">
+                                    <span class="number">${total - vendidos}</span>
+                                    <span class="label">Disponibles</span>
+                                </div>
+                                <div class="stat-mini">
+                                    <span class="number">${porcentaje.toFixed(1)}%</span>
+                                    <span class="label">Completado</span>
+                                </div>
+                                <div class="stat-mini">
+                                    <span class="number">$${recaudado.toFixed(2)}</span>
+                                    <span class="label">Recaudado</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Agregar event listeners a las rifas
+                container.querySelectorAll('.rifa-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const rifaId = card.getAttribute('data-rifa-id');
+                        const rifa = rifas.find(r => r.id === rifaId);
+                        if (rifa) {
+                            this.mostrarDetallesRifa(rifa);
+                        }
+                    });
+                });
+            }
+
+            async mostrarDetallesRifa(rifa) {
+                this.rifaActual = rifa;
+                
+                // Actualizar información básica
+                document.getElementById('rifaTitle').textContent = rifa.get('titulo');
+                document.getElementById('rifaDescription').textContent = rifa.get('descripcion') || '';
+                document.getElementById('rifaPrecio').textContent = rifa.get('precioNumero');
+                document.getElementById('rifaFecha').textContent = new Date(rifa.get('fechaSorteo')).toLocaleDateString();
+                document.getElementById('rifaMeta').textContent = rifa.get('metaRecaudacion');
+                document.getElementById('metaAmount').textContent = rifa.get('metaRecaudacion');
+
+                // Cargar números de la rifa
+                await this.cargarNumerosRifa(rifa.id);
+
+                // Actualizar estadísticas
+                this.actualizarEstadisticas();
+
+                // Mostrar sección
+                document.querySelector('.rifa-selector').style.display = 'none';
+                document.getElementById('rifaContent').style.display = 'block';
+
+                // Scroll to top
+                window.scrollTo(0, 0);
+            }
+
+            async cargarNumerosRifa(rifaId) {
+                try {
+                    const Numeros = Parse.Object.extend("Numeros");
+                    const query = new Parse.Query(Numeros);
+                    query.equalTo('rifaId', rifaId);
+                    query.ascending('numero');
+                    const results = await query.find();
+
+                    this.numerosRifa = results;
+                    this.actualizarGridNumeros();
+
+                    // Si no hay números, crear algunos
+                    if (results.length === 0) {
+                        await this.crearNumerosRifa(rifaId);
+                    }
+                } catch (error) {
+                    console.error('Error cargando números:', error);
+                }
+            }
+
+            async crearNumerosRifa(rifaId) {
+                try {
+                    const Numeros = Parse.Object.extend("Numeros");
+                    const numeros = [];
+                    const totalNumeros = this.rifaActual.get('totalNumeros');
+                    
+                    for (let i = 1; i <= totalNumeros; i++) {
+                        const numero = new Numeros();
+                        numero.set('rifaId', rifaId);
+                        numero.set('numero', i);
+                        numero.set('vendido', false);
+                        numeros.push(numero);
+                    }
+                    
+                    await Parse.Object.saveAll(numeros);
+                    await this.cargarNumerosRifa(rifaId); // Recargar números
+                    
+                } catch (error) {
+                    console.error('Error creando números:', error);
+                }
+            }
+
+            actualizarGridNumeros() {
+                const numbersGrid = document.getElementById('numbersGrid');
+                numbersGrid.innerHTML = '';
+
+                this.numerosRifa.forEach(numeroObj => {
+                    const numero = numeroObj.get('numero');
+                    const vendido = numeroObj.get('vendido');
+                    
+                    const numberItem = document.createElement('div');
+                    numberItem.className = `number-item ${vendido ? 'sold' : 'available'}`;
+                    numberItem.textContent = numero;
+                    
+                    if (!vendido) {
+                        numberItem.addEventListener('click', () => this.seleccionarNumero(numero));
+                    }
+                    
+                    if (vendido) {
+                        const soldBadge = document.createElement('div');
+                        soldBadge.className = 'sold-badge';
+                        soldBadge.textContent = '✗';
+                        numberItem.appendChild(soldBadge);
+                    }
+                    
+                    numbersGrid.appendChild(numberItem);
+                });
+            }
+
+            actualizarEstadisticas() {
+                if (!this.rifaActual || this.numerosRifa.length === 0) return;
+
+                const totalNumeros = this.rifaActual.get('totalNumeros');
+                const vendidos = this.numerosRifa.filter(n => n.get('vendido')).length;
+                const disponibles = totalNumeros - vendidos;
+                const recaudado = vendidos * this.rifaActual.get('precioNumero');
+                const porcentaje = (vendidos / totalNumeros) * 100;
+                const meta = this.rifaActual.get('metaRecaudacion');
+                const porcentajeMeta = meta > 0 ? (recaudado / meta) * 100 : 0;
+
+                document.getElementById('statVendidos').textContent = vendidos;
+                document.getElementById('statDisponibles').textContent = disponibles;
+                document.getElementById('statRecaudado').textContent = `$${recaudado.toFixed(2)}`;
+                document.getElementById('statPorcentaje').textContent = `${porcentaje.toFixed(1)}%`;
+
+                // Actualizar barra de progreso
+                document.getElementById('progressFill').style.width = `${porcentajeMeta}%`;
+                document.getElementById('progressText').textContent = `${porcentajeMeta.toFixed(1)}% de la meta completada`;
+            }
+
+            seleccionarNumero(numero) {
+                document.getElementById('modalNumero').textContent = numero;
+                document.getElementById('numeroSeleccionado').value = numero;
+                document.getElementById('compraModal').style.display = 'flex';
+                
+                // Limpiar formulario
+                document.getElementById('compraForm').reset();
+            }
+
+            async procesarCompra() {
+                const numero = document.getElementById('numeroSeleccionado').value;
+                const nombre = document.getElementById('nombreComprador').value;
+                const telefono = document.getElementById('telefonoComprador').value;
+                const email = document.getElementById('emailComprador').value;
+
+                // Validaciones básicas
+                if (!nombre || !telefono) {
+                    this.mostrarError('Por favor completa todos los campos obligatorios.');
+                    return;
+                }
+
+                try {
+                    // Encontrar el objeto número correspondiente
+                    const numeroObj = this.numerosRifa.find(n => n.get('numero') == numero);
+                    if (!numeroObj) throw new Error('Número no encontrado');
+
+                    // Verificar que el número no esté vendido
+                    if (numeroObj.get('vendido')) {
+                        this.mostrarError('Este número ya ha sido vendido. Por favor elige otro.');
+                        return;
+                    }
+
+                    // Crear reserva temporal
+                    await this.crearReserva(numeroObj.id, nombre, telefono, email);
+
+                    // Abrir WhatsApp
+                    this.abrirWhatsApp(numero, nombre, telefono);
+
+                    // Cerrar modal
+                    this.cerrarModal();
+
+                } catch (error) {
+                    console.error('Error procesando compra:', error);
+                    this.mostrarError('Error al procesar la compra. Intenta nuevamente.');
+                }
+            }
+
+            async crearReserva(numeroId, nombre, telefono, email) {
+                try {
+                    const Reserva = Parse.Object.extend("Reserva");
+                    const reserva = new Reserva();
+                    
+                    await reserva.save({
+                        numeroId: numeroId,
+                        nombre: nombre,
+                        telefono: telefono,
+                        email: email,
+                        fechaReserva: new Date(),
+                        estado: 'pendiente',
+                        expira: new Date(Date.now() + 2 * 60 * 60 * 1000) // Expira en 2 horas
+                    });
+                    
+                    console.log('✅ Reserva creada exitosamente');
+                } catch (error) {
+                    console.error('Error creando reserva:', error);
+                    throw error;
+                }
+            }
+
+            abrirWhatsApp(numero, nombre, telefono) {
+                const mensaje = this.config.whatsappMessage
+                    .replace('{numero}', numero)
+                    .replace('{rifa}', this.rifaActual.get('titulo'))
+                    .replace('{nombre}', nombre)
+                    .replace('{telefono}', telefono)
+                    .replace('{precio}', this.rifaActual.get('precioNumero'));
+                    
+                const textoCodificado = encodeURIComponent(mensaje);
+                const urlWhatsApp = `https://wa.me/${this.config.whatsappNumber}?text=${textoCodificado}`;
+                
+                window.open(urlWhatsApp, '_blank');
+                
+                this.mostrarMensaje(`
+                    <div style="text-align: center; padding: 20px;">
+                        <h3 style="color: #27ae60;">✅ ¡Reserva exitosa!</h3>
+                        <p>Se ha abierto WhatsApp para que coordines el pago.</p>
+                        <p><strong>Número reservado:</strong> ${numero}</p>
+                        <p><strong>Nombre:</strong> ${nombre}</p>
+                        <p><strong>Tienes 2 horas</strong> para completar el pago y confirmar tu número.</p>
+                    </div>
+                `);
+            }
+
+            cerrarModal() {
+                document.getElementById('compraModal').style.display = 'none';
+                document.getElementById('compraForm').reset();
+            }
+
+            volverARifas() {
+                document.getElementById('rifaContent').style.display = 'none';
+                document.querySelector('.rifa-selector').style.display = 'block';
+                this.rifaActual = null;
+                this.numerosRifa = [];
+            }
+
+            async cargarGanadores() {
+                try {
+                    const Sorteo = Parse.Object.extend("Sorteo");
+                    const query = new Parse.Query(Sorteo);
+                    query.include("rifaId");
+                    query.descending("fechaSorteo");
+                    query.limit(5);
+                    const resultados = await query.find();
+
+                    this.ganadores = resultados.map(sorteo => ({
+                        rifa: sorteo.get('rifaId').get('titulo'),
+                        ganador: sorteo.get('ganador'),
+                        numero: sorteo.get('numeroGanador'),
+                        fecha: sorteo.get('fechaSorteo')
+                    }));
+
+                    this.mostrarGanadores();
+                } catch (error) {
+                    console.error('Error cargando ganadores:', error);
+                }
+            }
+
+            mostrarGanadores() {
+                const container = document.getElementById('winnersList');
+                const section = document.getElementById('winnersSection');
+
+                if (this.ganadores.length === 0) {
+                    section.style.display = 'none';
+                    return;
+                }
+
+                section.style.display = 'block';
+                container.innerHTML = this.ganadores.map(ganador => `
+                    <div class="winner-card">
+                        <div class="winner-header">
+                            <h4>${ganador.rifa}</h4>
+                            <span class="winner-number">#${ganador.numero}</span>
+                        </div>
+                        <div class="winner-info">
+                            <strong>${ganador.ganador}</strong>
+                            <span class="winner-date">${new Date(ganador.fecha).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            mostrarError(mensaje) {
+                this.mostrarMensaje(`
+                    <div style="text-align: center; padding: 20px; color: #e74c3c;">
+                        <h3>❌ Error</h3>
+                        <p>${mensaje}</p>
+                    </div>
+                `);
+            }
+
+            mostrarMensaje(html) {
+                const mensajeDiv = document.createElement('div');
+                mensajeDiv.className = 'notification-message';
+                mensajeDiv.innerHTML = html;
+                mensajeDiv.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: white;
+                    padding: 30px;
+                    border-radius: 10px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                    max-width: 400px;
+                    width: 90%;
+                `;
+
+                document.body.appendChild(mensajeDiv);
+
+                setTimeout(() => {
+                    if (mensajeDiv.parentNode) {
+                        mensajeDiv.remove();
+                    }
+                }, 5000);
+            }
+        }
+
+        // Inicializar aplicación
+        document.addEventListener('DOMContentLoaded', () => {
+            window.sistemaRifas = new SistemaRifas();
+        });
+    </script>
+</body>
+</html>

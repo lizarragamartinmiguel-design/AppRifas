@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración - Rifas Solidarias</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <!-- LOGIN -->
+  <div class="login-section" id="loginSection">
+    <div class="login-form">
+      <div class="login-header">
+        <h2>🔐 Acceso Administrativo</h2>
+        <p class="login-subtitle">Sistema de Gestión de Rifas</p>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Usuario:</label>
+          <input type="text" id="username" required placeholder="admin" value="admin">
+        </div>
+        <div class="form-group">
+          <label for="password">Contraseña:</label>
+          <input type="password" id="password" required placeholder="pagos10" value="pagos10">
+        </div>
+        <button type="submit" class="btn-login">Ingresar al Panel</button>
+        <div class="login-help">
+          <p>¿Problemas? Contacta al administrador.</p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="dashboard" style="display: none;">
+    <div class="dashboard-header">
+      <h1>🎯 Panel de Administración - Rifas Solidarias</h1>
+      <button class="btn-logout" id="btnLogout">🚪 Cerrar Sesión</button>
+    </div>
+
+    <nav class="dashboard-nav">
+      <ul class="nav-tabs">
+        <li class="active" data-tab="dashboard">📊 Dashboard</li>
+        <li data-tab="rifas">🎫 Gestionar Rifas</li>
+        <li data-tab="sorteos">🎰 Sorteos</li>
+        <li data-tab="config">⚙️ Configuración</li>
+      </ul>
+    </nav>
+
+    <div class="dashboard-content">
+      <!-- Dashboard -->
+      <div id="tab-dashboard" class="tab-content active">
+        <div class="stats-grid">
+          <div class="stat-card"><span class="stat-number" id="quickSold">0</span><span class="stat-label">Boletos Vendidos</span></div>
+          <div class="stat-card"><span class="stat-number" id="quickRaised">$0</span><span class="stat-label">Total Recaudado</span></div>
+          <div class="stat-card"><span class="stat-number" id="quickAvailable">0</span><span class="stat-label">Rifas Activas</span></div>
+          <div class="stat-card"><span class="stat-number" id="quickParticipants">0</span><span class="stat-label">Participantes</span></div>
+        </div>
+        <h3>Rifas Activas</h3>
+        <div id="rifasListDashboard" class="rifas-list"></div>
+      </div>
+
+      <!-- Gestionar Rifas -->
+      <div id="tab-rifas" class="tab-content">
+        <div class="form-container">
+          <h3>➕ Crear Nueva Rifa</h3>
+          <form id="rifaConfigForm">
+            <div class="form-row">
+              <div class="form-group"><label for="titulo">Título de la Rifa:</label><input type="text" id="titulo" required placeholder="Ej: Rifa Solidaria Navidad 2024"></div>
+              <div class="form-group"><label for="precioNumero">Precio por Número:</label><input type="number" id="precioNumero" required min="1" step="0.01" placeholder="20.00"></div>
+            </div>
+            <div class="form-group form-group-full"><label for="descripcion">Descripción:</label><textarea id="descripcion" required placeholder="Descripción de la rifa y premios"></textarea></div>
+            <div class="form-row">
+              <div class="form-group"><label for="totalNumeros">Total de Números:</label><input type="number" id="totalNumeros" required min="1" placeholder="500"></div>
+              <div class="form-group"><label for="metaRecaudacion">Meta de Recaudación:</label><input type="number" id="metaRecaudacion" required min="1" step="0.01" placeholder="10000.00"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label for="fechaSorteo">Fecha del Sorteo:</label><input type="datetime-local" id="fechaSorteo" required></div>
+              <div class="form-group"><button type="submit" class="btn-login">💾 Guardar Rifa</button></div>
+            </div>
+          </form>
+        </div>
+        <h3>🎯 Rifas Existentes</h3>
+        <div id="rifasList" class="rifas-list"></div>
+      </div>
+
+      <!-- Sorteos -->
+      <div id="tab-sorteos" class="tab-content">
+        <div class="form-container">
+          <h3>🎰 Realizar Sorteo</h3>
+          <div class="form-group"><label for="selectRifaSorteo">Seleccionar Rifa:</label>
+            <select id="selectRifaSorteo"><option value="">-- Selecciona una rifa --</option></select>
+          </div>
+          <div class="form-group"><button id="btnRealizarSorteo" class="btn-login">🎯 Realizar Sorteo</button></div>
+        </div>
+        <h3>📋 Historial de Sorteos</h3>
+        <div id="historialSorteos" class="rifas-list"></div>
+      </div>
+
+      <!-- Configuración -->
+      <div id="tab-config" class="tab-content">
+        <div class="form-container">
+          <h3>⚙️ Configuración del Sistema</h3>
+          <div class="config-section">
+            <h4>📱 WhatsApp</h4>
+            <div class="form-group"><label for="whatsappNumber">Número de WhatsApp:</label><input type="text" id="whatsappNumber" placeholder="+5491112345678"></div>
+            <div class="form-group"><label for="whatsappMessage">Mensaje de WhatsApp:</label><textarea id="whatsappMessage" placeholder="Hola! Quiero comprar el número {numero} de la rifa {rifa}. Mi nombre es {nombre}"></textarea><small>Variables: {numero}, {rifa}, {nombre}, {telefono}, {precio}</small></div>
+          </div>
+          <div class="config-section">
+            <h4>🎰 Sorteos</h4>
+            <div class="form-group"><label for="sorteoGrabacion">Requerir grabación de sorteo:</label><select id="sorteoGrabacion"><option value="si">Sí</option><option value="no">No</option></select></div>
+            <div class="form-group"><label for="mensajeGanador">Mensaje para el ganador:</label><textarea id="mensajeGanador" placeholder="¡Felicidades {nombre}! Ganaste la rifa {rifa} con el número {numero}"></textarea></div>
+          </div>
+          <button id="btnGuardarConfig" class="btn-login">💾 Guardar Configuración</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Sorteo -->
+  <div class="modal" id="modalSorteo">
+    <div class="modal-content">
+      <div class="modal-header"><h3>🎉 Resultado del Sorteo</h3><button class="close-modal">&times;</button></div>
+      <div id="resultadoSorteoContent"></div>
+    </div>
+  </div>
+
+  <!-- Parse SDK -->
+  <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
+
+  <script>
+    /* ---------- CONFIG BACK4APP ---------- */
+    Parse.initialize("NNxoqUEYiTkyO1MxAmxF6lGPeHhmqXUxG8bZGyPr", "hO0qRKANPmDLu3spkcDLLTBTeYIQSfCNJg8T0dUH");
+    Parse.serverURL = "https://parseapi.back4app.com/";
+
+    /* ---------- CLASES AUXILIARES ---------- */
+    class SistemaSorteo {
+      async realizarSorteo(rifaId) {
+        const Numeros = Parse.Object.extend("Numeros");
+        const query = new Parse.Query(Numeros);
+        query.equalTo("rifaId", rifaId);
+        query.equalTo("vendido", true);
+        const numerosVendidos = await query.find();
+        if (numerosVendidos.length === 0) throw new Error("No hay números vendidos para realizar el sorteo");
+        const ganadorIndex = Math.floor(Math.random() * numerosVendidos.length);
+        const numeroGanador = numerosVendidos[ganadorIndex];
+        const Sorteo = Parse.Object.extend("Sorteo");
+        const sorteo = new Sorteo();
+        await sorteo.save({
+          rifaId: rifaId,
+          numeroGanador: numeroGanador.get('numero'),
+          ganador: numeroGanador.get('comprador'),
+          telefono: numeroGanador.get('telefono'),
+          email: numeroGanador.get('email'),
+          fechaSorteo: new Date(),
+          totalParticipantes: numerosVendidos.length,
+          estado: 'completado'
+        });
+        const Rifa = Parse.Object.extend("Rifa");
+        const rifaQuery = new Parse.Query(Rifa);
+        const rifa = await rifaQuery.get(rifaId);
+        rifa.set('estado', 'sorteada');
+        await rifa.save();
+        return {
+          ganador: numeroGanador.get('comprador'),
+          numero: numeroGanador.get('numero'),
+          telefono: numeroGanador.get('telefono'),
+          email: numeroGanador.get('email'),
+          fecha: new Date(),
+          totalParticipantes: numerosVendidos.length
+        };
+      }
+      async obtenerHistorialSorteos() {
+        const Sorteo = Parse.Object.extend("Sorteo");
+        const query = new Parse.Query(Sorteo);
+        query.include("rifaId");
+        query.descending("fechaSorteo");
+        const sorteos = await query.find();
+        return sorteos.map(sorteo => ({
+          id: sorteo.id,
+          rifa: sorteo.get('rifaId') ? sorteo.get('rifaId').get('titulo') : 'Rifa no encontrada',
+          ganador: sorteo.get('ganador'),
+          numero: sorteo.get('numeroGanador'),
+          telefono: sorteo.get('telefono'),
+          fecha: sorteo.get('fechaSorteo'),
+          participantes: sorteo.get('totalParticipantes')
+        }));
+      }
+    }
+
+    /* ---------- ADMIN SYSTEM ---------- */
+    class AdminSystem {
+      constructor() {
+        this.rifas = [];
+        this.sorteos = [];
+        this.sistemaSorteo = new SistemaSorteo();
+        this.init();
+      }
+      async init() {
+        await this.crearUsuarioAdmin();
+        this.setupEventListeners();
+        await this.checkAuth();
+        await this.cargarConfiguracion();
+      }
+      async crearUsuarioAdmin() {
+        try { await Parse.User.logIn("admin", "pagos10"); } catch (loginError) {
+          const user = new Parse.User();
+          user.set("username", "admin");
+          user.set("password", "pagos10");
+          user.set("email", "admin@rifa-solidaria.com");
+          await user.signUp();
+        }
+      }
+      setupEventListeners() {
+        document.getElementById('loginForm').addEventListener('submit', e => { e.preventDefault(); this.login(); });
+        document.getElementById('btnLogout').addEventListener('click', () => this.logout());
+        document.querySelectorAll('.nav-tabs li').forEach(btn => btn.addEventListener('click', e => {
+          const tab = e.target.getAttribute('data-tab');
+          this.switchTab(tab);
+        }));
+        document.getElementById('rifaConfigForm').addEventListener('submit', e => { e.preventDefault(); this.guardarRifa(); });
+        document.getElementById('btnRealizarSorteo').addEventListener('click', () => this.realizarSorteo());
+        document.getElementById('btnGuardarConfig').addEventListener('click', () => this.guardarConfiguracion());
+        document.querySelector('.close-modal').addEventListener('click', () => this.cerrarModalSorteo());
+      }
+      async login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        try {
+          await Parse.User.logIn(username, password);
+          this.showSection('dashboard');
+          this.showNotification('✅ Inicio de sesión exitoso', 'success');
+          await this.cargarRifas();
+          await this.cargarSorteos();
+        } catch (error) {
+          this.showNotification('❌ Usuario o contraseña incorrectos', 'error');
+        }
+      }
+      async logout() {
+        try { await Parse.User.logOut(); } catch (e) { /* ignore */ }
+        this.showSection('login');
+        this.showNotification('👋 Sesión cerrada', 'info');
+      }
+      async checkAuth() {
+        try { await Parse.User.logOut(); } catch (e) { /* limpiar token corrupto */ }
+        const currentUser = Parse.User.current();
+        if (currentUser) {
+          this.showSection('dashboard');
+          await this.cargarRifas();
+          await this.cargarSorteos();
+        } else {
+          this.showSection('login');
+        }
+      }
+      showSection(sectionName) {
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'none';
+        if (sectionName === 'login') {
+          document.getElementById('loginSection').style.display = 'flex';
+        } else {
+          document.getElementById('dashboard').style.display = 'block';
+          this.loadDashboard();
+        }
+      }
+      async cargarRifas() {
+        try {
+          const Rifa = Parse.Object.extend("Rifa");
+          const query = new Parse.Query(Rifa);
+          query.ascending('createdAt');
+          const results = await query.find();
+          this.rifas = results.map(rifa => ({
+            id: rifa.id,
+            titulo: rifa.get('titulo') || 'Sin título',
+            descripcion: rifa.get('descripcion') || '',
+            precioNumero: rifa.get('precioNumero') || 0,
+            totalNumeros: rifa.get('totalNumeros') || 0,
+            numerosVendidos: rifa.get('numerosVendidos') || 0,
+            fechaSorteo: rifa.get('fechaSorteo'),
+            metaRecaudacion: rifa.get('metaRecaudacion') || 0,
+            estado: rifa.get('estado') || 'activa'
+          }));
+          this.mostrarRifas();
+          this.actualizarSelectSorteo();
+          this.updateQuickStats();
+        } catch (error) {
+          console.error('Error cargando rifas:', error);
+          this.showNotification('❌ Error al cargar rifas', 'error');
+        }
+      }
+      mostrarRifas() {
+        const container = document.getElementById('rifasList');
+        const dashboardContainer = document.getElementById('rifasListDashboard');
+        const html = this.rifas.map(rifa => `
+          <div class="rifa-admin-card">
+            <div class="rifa-header">
+              <h3>${rifa.titulo}</h3>
+              <div class="rifa-actions">
+                <button class="btn-sorteo" ${rifa.estado === 'sorteada' || rifa.numerosVendidos === 0 ? 'disabled' : ''} onclick="adminSystem.prepararSorteo('${rifa.id}')">🎰 Sorteo</button>
+                <button class="btn-edit" onclick="adminSystem.editarRifa('${rifa.id}')">✏️ Editar</button>
+                <button class="btn-delete" onclick="adminSystem.eliminarRifa('${rifa.id}')">🗑️ Eliminar</button>
+              </div>
+            </div>
+            <p class="rifa-desc">${rifa.descripcion}</p>
+            <div class="rifa-stats">
+              <div class="stat"><span class="stat-value">${rifa.numerosVendidos}</span><span class="stat-label">Vendidos</span></div>
+              <div class="stat"><span class="stat-value">${rifa.totalNumeros - rifa.numerosVendidos}</span><span class="stat-label">Disponibles</span></div>
+              <div class="stat"><span class="stat-value">$${(rifa.numerosVendidos * rifa.precioNumero).toFixed(2)}</span><span class="stat-label">Recaudado</span></div>
+              <div class="stat"><span class="stat-value">${rifa.estado}</span><span class="stat-label">Estado</span></div>
+            </div>
+          </div>
+        `).join('');
+        if (container) container.innerHTML = html;
+        if (dashboardContainer) dashboardContainer.innerHTML = html;
+      }
+      async guardarRifa() {
+        const titulo = document.getElementById('titulo').value.trim();
+        const descripcion = document.getElementById('descripcion').value.trim();
+        const precioNumero = parseFloat(document.getElementById('precioNumero').value) || 0;
+        const totalNumeros = parseInt(document.getElementById('totalNumeros').value) || 0;
+        const rawFecha = document.getElementById('fechaSorteo').value;
+        const metaRecaudacion = parseFloat(document.getElementById('metaRecaudacion').value) || 0;
+
+        if (!titulo || !descripcion || !rawFecha) {
+          this.showNotification('❌ Título, descripción y fecha son obligatorios', 'error');
+          return;
+        }
+        if (precioNumero <= 0 || totalNumeros <= 0 || metaRecaudacion <= 0) {
+          this.showNotification('❌ Precio, cantidad de números y meta deben ser mayores a 0', 'error');
+          return;
+        }
+
+        const rifaData = {
+          titulo,
+          descripcion,
+          precioNumero,
+          totalNumeros,
+          fechaSorteo: new Date(rawFecha).toISOString(),
+          metaRecaudacion,
+          estado: 'activa',
+          numerosVendidos: 0
+        };
+
+        try {
+          const Rifa = Parse.Object.extend("Rifa");
+          const rifa = new Rifa();
+          await rifa.save(rifaData);
+          await this.crearNumerosParaRifa(rifa.id, totalNumeros);
+          this.showNotification('✅ Rifa y números creados correctamente', 'success');
+          document.getElementById('rifaConfigForm').reset();
+          await this.cargarRifas();
+        } catch (err) {
+          console.error('❌ Error guardando rifa:', err);
+          this.showNotification('❌ Error al crear la rifa: ' + err.message, 'error');
+        }
+      }
+      async crearNumerosParaRifa(rifaId, totalNumeros) {
+        try {
+          const Numeros = Parse.Object.extend("Numeros");
+          const numeros = [];
+          for (let i = 1; i <= totalNumeros; i++) {
+            const numero = new Numeros();
+            numero.set('rifaId', rifaId);
+            numero.set('numero', i);
+            numero.set('vendido', false);
+            numero.set('comprador', '');
+            numero.set('telefono', '');
+            numero.set('email', '');
+            numeros.push(numero);
+          }
+          const batchSize = 50;
+          for (let i = 0; i < numeros.length; i += batchSize) {
+            await Parse.Object.saveAll(numeros.slice(i, i + batchSize));
+          }
+        } catch (error) {
+          console.error('Error creando números:', error);
+          throw error;
+        }
+      }
+      async eliminarRifa(rifaId) {
+        if (!confirm('¿Estás seguro de eliminar esta rifa y todos sus números?')) return;
+        try {
+          const Numeros = Parse.Object.extend("Numeros");
+          const queryNumeros = new Parse.Query(Numeros);
+          queryNumeros.equalTo("rifaId", rifaId);
+          const numeros = await queryNumeros.find();
+          if (numeros.length > 0) await Parse.Object.destroyAll(numeros);
+          const Rifa = Parse.Object.extend("Rifa");
+          const queryRifa = new Parse.Query(Rifa);
+          const rifa = await queryRifa.get(rifaId);
+          await rifa.destroy();
+          this.showNotification('✅ Rifa y números eliminados', 'success');
+          await this.cargarRifas();
+        } catch (error) {
+          this.showNotification('❌ Error al eliminar la rifa', 'error');
+        }
+      }
+      actualizarSelectSorteo() {
+        const select = document.getElementById('selectRifaSorteo');
+        select.innerHTML = '<option value="">-- Selecciona una rifa --</option>';
+        this.rifas
+          .filter(r => r.estado === 'activa' && r.numerosVendidos > 0)
+          .forEach(r => {
+            const option = document.createElement('option');
+            option.value = r.id;
+            option.textContent = `${r.titulo} (${r.numerosVendidos} vendidos)`;
+            select.appendChild(option);
+          });
+      }
+      prepararSorteo(rifaId) {
+        document.getElementById('selectRifaSorteo').value = rifaId;
+        this.switchTab('sorteos');
+      }
+      async realizarSorteo() {
+        const rifaId = document.getElementById('selectRifaSorteo').value;
+        if (!rifaId) return this.showNotification('❌ Selecciona una rifa primero', 'error');
+        const rifa = this.rifas.find(r => r.id === rifaId);
+        if (!rifa) return this.showNotification('❌ Rifa no encontrada', 'error');
+        if (rifa.numerosVendidos === 0) return this.showNotification('❌ No hay números vendidos para sortear', 'error');
+        if (!confirm(`¿Estás seguro de realizar el sorteo para "${rifa.titulo}"? Esta acción no se puede deshacer.`)) return;
+        try {
+          this.showNotification('🎰 Realizando sorteo...', 'info');
+          const resultado = await this.sistemaSorteo.realizarSorteo(rifaId);
+          this.mostrarResultadoSorteo(resultado, rifa);
+          await this.cargarRifas();
+          await this.cargarSorteos();
+        } catch (error) {
+          this.showNotification('❌ Error en el sorteo: ' + error.message, 'error');
+        }
+      }
+      mostrarResultadoSorteo(resultado, rifa) {
+        const modal = document.getElementById('modalSorteo');
+        const content = document.getElementById('resultadoSorteoContent');
+        content.innerHTML = `
+          <div class="resultado-sorteo">
+            <h4>🎉 ¡Tenemos un ganador!</h4>
+            <div class="ganador-info"><strong>${resultado.ganador}</strong></div>
+            <p>Número ganador: <strong>${resultado.numero}</strong></p>
+            <p>Teléfono: <strong>${resultado.telefono}</strong></p>
+            <p>Email: <strong>${resultado.email || 'No proporcionado'}</strong></p>
+            <p>Rifa: <strong>${rifa.titulo}</strong></p>
+            <p>Total participantes: <strong>${resultado.totalParticipantes}</strong></p>
+            <p>Fecha: <strong>${new Date(resultado.fecha).toLocaleString()}</strong></p>
+          </div>
+          <div style="text-align: center; margin-top: 20px;"><button class="btn-login" onclick="adminSystem.cerrarModalSorteo()">Cerrar</button></div>
+        `;
+        modal.style.display = 'flex';
+      }
+      cerrarModalSorteo() {
+        document.getElementById('modalSorteo').style.display = 'none';
+      }
+      async cargarSorteos() {
+        this.sorteos = await this.sistemaSorteo.obtenerHistorialSorteos();
+        this.mostrarHistorialSorteos();
+      }
+      mostrarHistorialSorteos() {
+        const container = document.getElementById('historialSorteos');
+        container.innerHTML = this.sorteos.length === 0
+          ? '<p>No hay sorteos realizados.</p>'
+          : this.sorteos.map(sorteo => `
+            <div class="rifa-admin-card">
+              <div class="rifa-header"><h3>${sorteo.rifa}</h3><span class="stat-value">#${sorteo.numero}</span></div>
+              <div class="rifa-stats">
+                <div class="stat"><span class="stat-value">${sorteo.ganador}</span><span class="stat-label">Ganador</span></div>
+                <div class="stat"><span class="stat-value">${sorteo.telefono}</span><span class="stat-label">Teléfono</span></div>
+                <div class="stat"><span class="stat-value">${sorteo.participantes}</span><span class="stat-label">Participantes</span></div>
+                <div class="stat"><span class="stat-value">${new Date(sorteo.fecha).toLocaleDateString()}</span><span class="stat-label">Fecha</span></div>
+              </div>
+            </div>
+          `).join('');
+      }
+      async cargarConfiguracion() {
+        try {
+          const Config = Parse.Object.extend("Config");
+          const query = new Parse.Query(Config);
+          const config = await query.first();
+          if (config) {
+            document.getElementById('whatsappNumber').value = config.get('whatsappNumber') || '';
+            document.getElementById('whatsappMessage').value = config.get('whatsappMessage') || '';
+            document.getElementById('sorteoGrabacion').value = config.get('sorteoGrabacion') || 'si';
+            document.getElementById('mensajeGanador').value = config.get('mensajeGanador') || '';
+          }
+        } catch (error) {
+          console.log('No hay configuración guardada o error:', error.message);
+        }
+      }
+      async guardarConfiguracion() {
+        try {
+          const Config = Parse.Object.extend("Config");
+          const query = new Parse.Query(Config);
+          let config = await query.first();
+          if (!config) config = new Config();
+          await config.save({
+            whatsappNumber: document.getElementById('whatsappNumber').value,
+            whatsappMessage: document.getElementById('whatsappMessage').value,
+            sorteoGrabacion: document.getElementById('sorteoGrabacion').value,
+            mensajeGanador: document.getElementById('mensajeGanador').value
+          });
+          this.showNotification('✅ Configuración guardada', 'success');
+        } catch (error) {
+          this.showNotification('❌ Error guardando configuración', 'error');
+        }
+      }
+      switchTab(tabName) {
+        document.querySelectorAll('.nav-tabs li').forEach(li => li.classList.remove('active'));
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+      }
+      loadDashboard() {
+        this.updateQuickStats();
+        this.switchTab('dashboard');
+      }
+      updateQuickStats() {
+        const totalVendidos = this.rifas.reduce((sum, rifa) => sum + rifa.numerosVendidos, 0);
+        const totalRecaudado = this.rifas.reduce((sum, rifa) => sum + (rifa.numerosVendidos * rifa.precioNumero), 0);
+        document.getElementById('quickSold').textContent = totalVendidos;
+        document.getElementById('quickRaised').textContent = `$${totalRecaudado.toFixed(2)}`;
+        document.getElementById('quickAvailable').textContent = this.rifas.filter(r => r.estado === 'activa').length;
+        document.getElementById('quickParticipants').textContent = this.rifas.length * 10;
+      }
+      showNotification(message, type) {
+        document.querySelectorAll('.notification').forEach(notif => notif.remove());
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 5000);
+      }
+    }
+
+    /* ---------- INICIALIZAR ---------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      window.adminSystem = new AdminSystem();
+    });
+  </script>
+</body>
+</html>
