@@ -1,4 +1,4 @@
-/* admin.css – Panel de Administración – Rifas Solidarias (Back4app) */
+/* admin.css – Panel de Administración – Rifas Solidarias (Back4app) - CORREGIDO */
 
 :root {
     --primary-color: #3498db;
@@ -91,6 +91,7 @@ body {
     border-radius: var(--border-radius);
     font-size: 1rem;
     transition: var(--transition);
+    background-color: #fff;
 }
 
 .form-group input:focus,
@@ -99,6 +100,18 @@ body {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 5px;
+    color: var(--gray-color);
+    font-size: 0.8rem;
 }
 
 .btn-login {
@@ -116,6 +129,7 @@ body {
 
 .btn-login:hover {
     background-color: #2980b9;
+    transform: translateY(-2px);
 }
 
 .login-help {
@@ -139,10 +153,12 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-header h1 {
     font-size: 1.5rem;
+    font-weight: 600;
 }
 
 .btn-logout {
@@ -153,15 +169,18 @@ body {
     border-radius: var(--border-radius);
     cursor: pointer;
     transition: var(--transition);
+    font-weight: 600;
 }
 
 .btn-logout:hover {
     background: #c0392b;
+    transform: translateY(-2px);
 }
 
 .dashboard-nav {
     background: var(--dark-color);
     padding: 0 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .nav-tabs {
@@ -175,6 +194,7 @@ body {
     cursor: pointer;
     border-bottom: 3px solid transparent;
     transition: var(--transition);
+    font-weight: 500;
 }
 
 .nav-tabs li.active {
@@ -188,6 +208,8 @@ body {
 
 .dashboard-content {
     padding: 30px;
+    background: #f8f9fa;
+    min-height: calc(100vh - 140px);
 }
 
 .tab-content {
@@ -196,6 +218,12 @@ body {
 
 .tab-content.active {
     display: block;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* ---------- STATS ---------- */
@@ -212,6 +240,13 @@ body {
     border-radius: var(--border-radius);
     text-align: center;
     border-left: 4px solid var(--primary-color);
+    transition: var(--transition);
+    box-shadow: var(--box-shadow);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
 .stat-number {
@@ -225,14 +260,23 @@ body {
 .stat-label {
     color: var(--gray-color);
     font-size: 0.9rem;
+    font-weight: 500;
 }
 
 /* ---------- FORMS ---------- */
 .form-container {
-    background: var(--light-color);
+    background: white;
     padding: 30px;
     border-radius: var(--border-radius);
     margin-bottom: 30px;
+    box-shadow: var(--box-shadow);
+    border: 1px solid #e1e5e9;
+}
+
+.form-container h3 {
+    color: var(--secondary-color);
+    margin-bottom: 20px;
+    font-size: 1.3rem;
 }
 
 .form-row {
@@ -244,6 +288,23 @@ body {
 
 .form-group-full {
     grid-column: 1 / -1;
+}
+
+.config-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.config-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.config-section h4 {
+    color: var(--secondary-color);
+    margin-bottom: 15px;
+    font-size: 1.1rem;
 }
 
 /* ---------- RIFAS LIST ---------- */
@@ -258,6 +319,12 @@ body {
     border-radius: var(--border-radius);
     padding: 20px;
     box-shadow: var(--box-shadow);
+    transition: var(--transition);
+}
+
+.rifa-admin-card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
 }
 
 .rifa-header {
@@ -265,26 +332,34 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .rifa-header h3 {
     color: var(--secondary-color);
+    font-size: 1.2rem;
+    margin: 0;
 }
 
 .rifa-actions {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .btn-edit,
 .btn-delete,
-.btn-sorteo {
+.btn-sorteo,
+.btn-vender {
     padding: 8px 12px;
     border: none;
     border-radius: var(--border-radius);
     cursor: pointer;
     font-size: 0.8rem;
     transition: var(--transition);
+    font-weight: 600;
+    min-width: 60px;
 }
 
 .btn-edit {
@@ -294,6 +369,7 @@ body {
 
 .btn-edit:hover {
     background: #2980b9;
+    transform: translateY(-2px);
 }
 
 .btn-delete {
@@ -303,6 +379,7 @@ body {
 
 .btn-delete:hover {
     background: #c0392b;
+    transform: translateY(-2px);
 }
 
 .btn-sorteo {
@@ -312,16 +389,29 @@ body {
 
 .btn-sorteo:hover:not(:disabled) {
     background: #219a52;
+    transform: translateY(-2px);
 }
 
 .btn-sorteo:disabled {
     background: var(--gray-color);
     cursor: not-allowed;
+    transform: none;
+}
+
+.btn-vender {
+    background: var(--warning-color);
+    color: white;
+}
+
+.btn-vender:hover {
+    background: #e67e22;
+    transform: translateY(-2px);
 }
 
 .rifa-desc {
     color: var(--gray-color);
     margin-bottom: 15px;
+    line-height: 1.5;
 }
 
 .rifa-stats {
@@ -334,6 +424,9 @@ body {
 
 .stat {
     text-align: center;
+    padding: 10px;
+    background: var(--light-color);
+    border-radius: var(--border-radius);
 }
 
 .stat-value {
@@ -347,6 +440,74 @@ body {
 .stat-label {
     font-size: 0.8rem;
     color: var(--gray-color);
+    font-weight: 500;
+}
+
+/* ---------- RESERVAS ---------- */
+.reservas-list {
+    display: grid;
+    gap: 20px;
+}
+
+.reserva-card {
+    background: white;
+    border: 1px solid #e1e5e9;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.reserva-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.reserva-info {
+    flex: 1;
+}
+
+.reserva-info strong {
+    color: var(--secondary-color);
+}
+
+.reserva-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-confirmar,
+.btn-cancelar {
+    padding: 8px 12px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: var(--transition);
+    font-weight: 600;
+    min-width: 80px;
+}
+
+.btn-confirmar {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-confirmar:hover {
+    background: #219a52;
+    transform: translateY(-2px);
+}
+
+.btn-cancelar {
+    background: var(--danger-color);
+    color: white;
+}
+
+.btn-cancelar:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
 }
 
 /* ---------- MODAL ---------- */
@@ -361,6 +522,7 @@ body {
     z-index: 1000;
     justify-content: center;
     align-items: center;
+    backdrop-filter: blur(5px);
 }
 
 .modal-content {
@@ -371,6 +533,19 @@ body {
     max-width: 500px;
     max-height: 90vh;
     overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 .modal-header {
@@ -378,10 +553,14 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e1e5e9;
 }
 
 .modal-header h3 {
     color: var(--secondary-color);
+    margin: 0;
+    font-size: 1.3rem;
 }
 
 .close-modal {
@@ -390,10 +569,18 @@ body {
     font-size: 24px;
     cursor: pointer;
     color: var(--gray-color);
+    transition: var(--transition);
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
 }
 
 .close-modal:hover {
     color: var(--danger-color);
+    background: rgba(231, 76, 60, 0.1);
 }
 
 .resultado-sorteo {
@@ -404,11 +591,30 @@ body {
     margin: 20px 0;
 }
 
+.resultado-sorteo h4 {
+    color: var(--success-color);
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+}
+
 .ganador-info {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: bold;
     color: var(--success-color);
+    margin: 15px 0;
+    padding: 10px;
+    background: white;
+    border-radius: var(--border-radius);
+    border: 2px solid var(--success-color);
+}
+
+.resultado-sorteo p {
     margin: 10px 0;
+    color: var(--dark-color);
+}
+
+.resultado-sorteo strong {
+    color: var(--secondary-color);
 }
 
 /* ---------- NOTIFICATIONS ---------- */
@@ -422,18 +628,23 @@ body {
     z-index: 1000;
     animation: slideIn 0.3s ease;
     max-width: 350px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-weight: 600;
 }
 
 .notification-success {
     background: var(--success-color);
+    border-left: 4px solid #219a52;
 }
 
 .notification-error {
     background: var(--danger-color);
+    border-left: 4px solid #c0392b;
 }
 
 .notification-info {
     background: var(--primary-color);
+    border-left: 4px solid #2980b9;
 }
 
 @keyframes slideIn {
@@ -447,16 +658,53 @@ body {
     }
 }
 
+/* ---------- UTILITY CLASSES ---------- */
+.text-center {
+    text-align: center;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 768px) {
     .dashboard-header {
         flex-direction: column;
         gap: 15px;
         text-align: center;
+        padding: 15px 20px;
+    }
+
+    .dashboard-nav {
+        padding: 0 20px;
     }
 
     .nav-tabs {
         flex-direction: column;
+    }
+
+    .nav-tabs li {
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 3px solid transparent;
+    }
+
+    .nav-tabs li.active {
+        border-left-color: var(--primary-color);
+        border-bottom-color: transparent;
+    }
+
+    .dashboard-content {
+        padding: 20px;
     }
 
     .form-row {
@@ -477,15 +725,33 @@ body {
         width: 100%;
         justify-content: center;
     }
+
+    .reserva-card {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .reserva-actions {
+        justify-content: center;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 480px) {
     .login-form {
-        padding: 25px;
+        padding: 25px 20px;
     }
 
     .dashboard-content {
         padding: 15px;
+    }
+
+    .form-container {
+        padding: 20px 15px;
     }
 
     .stats-grid {
@@ -494,5 +760,47 @@ body {
 
     .rifa-stats {
         grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        padding: 20px 15px;
+        margin: 10px;
+    }
+
+    .notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}
+
+/* ---------- LOADING STATES ---------- */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin: -8px 0 0 -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-right-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
     }
 }

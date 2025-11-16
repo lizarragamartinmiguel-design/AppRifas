@@ -4,10 +4,367 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Administración - Rifas Solidarias</title>
-  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    /* ESTILOS BÁSICOS - Elimina el link a admin.css y usa estos estilos */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    /* Login Section */
+    .login-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .login-form {
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    .login-header h2 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    
+    .login-subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #555;
+    }
+    
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .btn-login:hover {
+      transform: translateY(-2px);
+    }
+    
+    .login-help {
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    /* Dashboard */
+    .dashboard {
+      background: white;
+      min-height: 100vh;
+    }
+    
+    .dashboard-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .dashboard-header h1 {
+      font-size: 24px;
+    }
+    
+    .btn-logout {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    
+    .nav-tabs {
+      background: #f8f9fa;
+      display: flex;
+      list-style: none;
+      border-bottom: 2px solid #dee2e6;
+    }
+    
+    .nav-tabs li {
+      padding: 15px 20px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+    
+    .nav-tabs li.active {
+      border-bottom-color: #667eea;
+      color: #667eea;
+      font-weight: 600;
+    }
+    
+    .nav-tabs li:hover {
+      background: #e9ecef;
+    }
+    
+    .dashboard-content {
+      padding: 20px;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    
+    .stat-card {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .stat-number {
+      display: block;
+      font-size: 24px;
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    /* Rifa Cards */
+    .rifa-admin-card {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+    }
+    
+    .rifa-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .rifa-header h3 {
+      color: #333;
+    }
+    
+    .rifa-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .rifa-actions button {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
+    .btn-sorteo { background: #28a745; color: white; }
+    .btn-edit { background: #ffc107; color: black; }
+    .btn-delete { background: #dc3545; color: white; }
+    .btn-vender { background: #17a2b8; color: white; }
+    
+    .rifa-desc {
+      color: #666;
+      margin-bottom: 15px;
+    }
+    
+    .rifa-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+    }
+    
+    .stat {
+      text-align: center;
+      padding: 10px;
+      background: white;
+      border-radius: 5px;
+    }
+    
+    .stat-value {
+      display: block;
+      font-size: 16px;
+      font-weight: bold;
+      color: #667eea;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+    }
+    
+    /* Form Styles */
+    .form-container {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .form-row .form-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    
+    .form-group-full {
+      width: 100%;
+    }
+    
+    .config-section {
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .config-section h4 {
+      margin-bottom: 15px;
+      color: #333;
+    }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 90%;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    
+    /* Notifications */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 5px;
+      color: white;
+      z-index: 1000;
+      font-weight: 600;
+      max-width: 300px;
+    }
+    
+    .notification-success { background: #4CAF50; }
+    .notification-error { background: #f44336; }
+    .notification-info { background: #2196F3; }
+    
+    /* Reservas */
+    .reserva-card {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .reserva-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn-confirmar { background: #28a745; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
+    .btn-cancelar { background: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
+  </style>
   <link rel="icon" href="data:,">
 </head>
 <body>
+
   <!-- LOGIN -->
   <div class="login-section" id="loginSection">
     <div class="login-form">
@@ -113,6 +470,8 @@
             <div class="form-group"><label for="mensajeGanador">Mensaje para el ganador:</label><textarea id="mensajeGanador" placeholder="¡Felicidades {nombre}! Ganaste la rifa {rifa} con el número {numero}"></textarea></div>
           </div>
           <button id="btnGuardarConfig" class="btn-login">💾 Guardar Configuración</button>
+          <br><br>
+          <button id="btnSync" class="btn-login">🔄 Sincronizar contadores</button>
         </div>
       </div>
     </div>
@@ -130,9 +489,9 @@
   <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
 
   <script>
-    /* ---------- CONFIG BACK4APP ---------- */
+    /* ---------- CONFIG BACK4APP CORREGIDA ---------- */
     Parse.initialize("NNxoqUEYiTkyO1MxAmxF6lGPeHhmqXUxG8bZGyPr", "hO0qRKANPmDLu3spkcDLLTBTeYIQSfCNJg8T0dUH");
-    Parse.serverURL = "https://parseapi.back4app.com/";
+    Parse.serverURL = "https://parseapi.back4app.com/"; // SIN ESPACIOS
 
     /* ---------- CLASES AUXILIARES ---------- */
     class SistemaSorteo {
@@ -189,7 +548,7 @@
       }
     }
 
-    /* ---------- ADMIN SYSTEM ---------- */
+    /* ---------- ADMIN SYSTEM CORREGIDO ---------- */
     class AdminSystem {
       constructor() {
         this.rifas = [];
@@ -198,19 +557,11 @@
         this.init();
       }
       async init() {
-        await this.crearUsuarioAdmin();
+        console.log('🚀 Iniciando sistema admin...');
         this.setupEventListeners();
         await this.checkAuth();
         await this.cargarConfiguracion();
-      }
-      async crearUsuarioAdmin() {
-        try { await Parse.User.logIn("admin", "pagos10"); } catch (loginError) {
-          const user = new Parse.User();
-          user.set("username", "admin");
-          user.set("password", "pagos10");
-          user.set("email", "admin@rifa-solidaria.com");
-          await user.signUp();
-        }
+        console.log('✅ Sistema admin inicializado');
       }
       setupEventListeners() {
         document.getElementById('loginForm').addEventListener('submit', e => { e.preventDefault(); this.login(); });
@@ -223,6 +574,7 @@
         document.getElementById('btnRealizarSorteo').addEventListener('click', () => this.realizarSorteo());
         document.getElementById('btnGuardarConfig').addEventListener('click', () => this.guardarConfiguracion());
         document.querySelector('.close-modal').addEventListener('click', () => this.cerrarModalSorteo());
+        document.getElementById('btnSync').addEventListener('click', () => this.sincronizarVendidos());
       }
       async login() {
         const username = document.getElementById('username').value;
@@ -238,18 +590,23 @@
         }
       }
       async logout() {
-        try { await Parse.User.logOut(); } catch (e) { /* ignore */ }
+        try { 
+          await Parse.User.logOut(); 
+        } catch (e) { 
+          console.log('Error en logout:', e);
+        }
         this.showSection('login');
         this.showNotification('👋 Sesión cerrada', 'info');
       }
       async checkAuth() {
-        try { await Parse.User.logOut(); } catch (e) { /* limpiar token corrupto */ }
         const currentUser = Parse.User.current();
         if (currentUser) {
+          console.log('✅ Usuario ya autenticado:', currentUser.get("username"));
           this.showSection('dashboard');
           await this.cargarRifas();
           await this.cargarSorteos();
         } else {
+          console.log('🔒 No hay usuario autenticado');
           this.showSection('login');
         }
       }
@@ -291,6 +648,7 @@
       mostrarRifas() {
         const container = document.getElementById('rifasList');
         const dashboardContainer = document.getElementById('rifasListDashboard');
+        
         const html = this.rifas.map(rifa => `
           <div class="rifa-admin-card">
             <div class="rifa-header">
@@ -299,6 +657,7 @@
                 <button class="btn-sorteo" ${rifa.estado === 'sorteada' || rifa.numerosVendidos === 0 ? 'disabled' : ''} onclick="adminSystem.prepararSorteo('${rifa.id}')">🎰 Sorteo</button>
                 <button class="btn-edit" onclick="adminSystem.editarRifa('${rifa.id}')">✏️ Editar</button>
                 <button class="btn-delete" onclick="adminSystem.eliminarRifa('${rifa.id}')">🗑️ Eliminar</button>
+                <button class="btn-vender" onclick="adminSystem.marcarComoVendido('${rifa.id}')">💰 Marcar Nº Vendido</button>
               </div>
             </div>
             <p class="rifa-desc">${rifa.descripcion}</p>
@@ -310,8 +669,13 @@
             </div>
           </div>
         `).join('');
+        
         if (container) container.innerHTML = html;
         if (dashboardContainer) dashboardContainer.innerHTML = html;
+      }
+      // FUNCIÓN EDITAR RIFA FALTANTE - AGREGADA
+      editarRifa(rifaId) {
+        this.showNotification('✏️ Función de edición en desarrollo', 'info');
       }
       async guardarRifa() {
         const titulo = document.getElementById('titulo').value.trim();
@@ -520,12 +884,69 @@
         document.getElementById('quickParticipants').textContent = this.rifas.length * 10;
       }
       showNotification(message, type) {
+        // Eliminar notificaciones existentes
         document.querySelectorAll('.notification').forEach(notif => notif.remove());
+        
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.textContent = message;
         document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 5000);
+        
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 5000);
+      }
+      async sincronizarVendidos() {
+        try {
+          for (const rifa of this.rifas) {
+            const Numeros = Parse.Object.extend("Numeros");
+            const vendidos = await new Parse.Query(Numeros)
+              .equalTo("rifaId", rifa.id)
+              .equalTo("vendido", true)
+              .count();
+
+            if (vendidos !== rifa.numerosVendidos) {
+              const Rifa = Parse.Object.extend("Rifa");
+              const obj = await new Parse.Query(Rifa).get(rifa.id);
+              obj.set("numerosVendidos", vendidos);
+              await obj.save();
+              rifa.numerosVendidos = vendidos;
+            }
+          }
+          this.mostrarRifas();
+          this.updateQuickStats();
+          this.showNotification("✅ Contadores sincronizados", "success");
+        } catch (e) {
+          this.showNotification("❌ Error: " + e.message, "error");
+        }
+      }
+      async marcarComoVendido(rifaId) {
+        const numero = prompt("¿Qué número querés marcar como vendido? (1-N)");
+        if (!numero || isNaN(numero)) return;
+        try {
+          const Numeros = Parse.Object.extend("Numeros");
+          const query = new Parse.Query(Numeros);
+          query.equalTo("rifaId", rifaId);
+          query.equalTo("numero", parseInt(numero));
+          const numeroObj = await query.first();
+          if (!numeroObj) return this.showNotification("❌ Número no encontrado", "error");
+          if (numeroObj.get('vendido')) return this.showNotification("❌ Ese número ya está vendido", "info");
+          numeroObj.set('vendido', true);
+          numeroObj.set('comprador', 'Admin Manual');
+          numeroObj.set('telefono', '+5490000000000');
+          numeroObj.set('email', 'admin@manual.com');
+          await numeroObj.save();
+          const Rifa = Parse.Object.extend("Rifa");
+          const rifaObj = await new Parse.Query(Rifa).get(rifaId);
+          rifaObj.increment('numerosVendidos', 1);
+          await rifaObj.save();
+          this.showNotification("✅ Número marcado como vendido", "success");
+          await this.cargarRifas();
+        } catch (err) {
+          this.showNotification("❌ Error: " + err.message, "error");
+        }
       }
     }
 
