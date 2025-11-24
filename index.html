@@ -5,6 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rifas Solidarias - Elige tu Sorteo</title>
     <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Estilos del Banner Flotante -->
+    <style>
+        .banner-flotante {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            max-width: 300px;
+            animation: slideInUp 0.5s ease-out;
+        }
+        
+        .banner-flotante a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .banner-flotante img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        
+        .banner-content {
+            flex: 1;
+        }
+        
+        .banner-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .banner-desc {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .banner-close {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Header -->
@@ -123,6 +192,18 @@
                 </div>
             </form>
         </div>
+    </div>
+
+    <!-- Banner Flotante -->
+    <div class="banner-flotante" id="promoBanner">
+        <button class="banner-close" onclick="cerrarBanner()">×</button>
+        <a href="https://puntoalmacen.netlify.app/" target="_blank">
+            <img src="https://cdn-icons-png.flaticon.com/512/2554/2554837.png" alt="Supermercado">
+            <div class="banner-content">
+                <div class="banner-title">🛒 Punto Almacén</div>
+                <div class="banner-desc">Todo para tu hogar en un solo lugar. ¡Visítanos!</div>
+            </div>
+        </a>
     </div>
 
     <!-- Footer -->
@@ -589,6 +670,17 @@
                 }, 5000);
             }
         }
+
+        // Función para cerrar el banner
+        function cerrarBanner() {
+            document.getElementById('promoBanner').style.display = 'none';
+        }
+        
+        // Cerrar automáticamente después de 30 segundos (opcional)
+        setTimeout(() => {
+            const banner = document.getElementById('promoBanner');
+            if (banner) banner.style.display = 'none';
+        }, 30000);
 
         // Inicializar aplicación
         document.addEventListener('DOMContentLoaded', () => {
