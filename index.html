@@ -109,40 +109,20 @@
                 <div class="rifa-meta">
                     <span class="meta-item">🎫 Precio: $<span id="rifaPrecio">0</span></span>
                     <span class="meta-item">📅 Sorteo: <span id="rifaFecha">--/--/----</span></span>
-                    <span class="meta-item">🎯 Meta: $<span id="rifaMeta">0</span></span>
+                    <span class="meta-item">🎲 Números totales: <span id="totalNumeros">0</span></span>
                 </div>
             </div>
 
-            <!-- Estadísticas -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-number" id="statVendidos">0</span>
-                    <span class="stat-label">Vendidos</span>
+            <!-- Estadísticas Simplificadas -->
+            <div class="stats-simple">
+                <div class="stat-item">
+                    <span class="stat-label">✅ Números disponibles:</span>
+                    <span class="stat-value" id="numerosDisponibles">0</span>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-number" id="statDisponibles">0</span>
-                    <span class="stat-label">Disponibles</span>
+                <div class="stat-item">
+                    <span class="stat-label">🎫 Números vendidos:</span>
+                    <span class="stat-value" id="numerosVendidos">0</span>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-number" id="statRecaudado">$0</span>
-                    <span class="stat-label">Recaudado</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-number" id="statPorcentaje">0%</span>
-                    <span class="stat-label">Completado</span>
-                </div>
-            </div>
-
-            <!-- Barra de Progreso -->
-            <div class="progress-container">
-                <div class="progress-info">
-                    <span>Progreso de la rifa</span>
-                    <span class="progress-goal">Meta: $<span id="metaAmount">0</span></span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="progress-text" id="progressText">0% completado</div>
             </div>
 
             <!-- Grid de Números -->
@@ -185,6 +165,7 @@
                 <div class="payment-info">
                     <h4>💳 Método de Pago</h4>
                     <p>Una vez completes el formulario, se abrirá WhatsApp para coordinar el pago.</p>
+                    <p><strong>Precio: $<span id="modalPrecio">0</span></strong></p>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">📱 Continuar a WhatsApp</button>
@@ -320,8 +301,8 @@
                 container.innerHTML = rifas.map(rifa => {
                     const vendidos = rifa.get('numerosVendidos') || 0;
                     const total = rifa.get('totalNumeros') || 0;
-                    const porcentaje = total > 0 ? (vendidos / total) * 100 : 0;
-                    const recaudado = vendidos * rifa.get('precioNumero');
+                    const disponibles = total - vendidos;
+                    const precio = rifa.get('precioNumero');
 
                     return `
                         <div class="rifa-card" data-rifa-id="${rifa.id}">
@@ -330,26 +311,18 @@
                             <h3>${rifa.get('titulo')}</h3>
                             <p class="rifa-desc">${rifa.get('descripcion') || 'Sin descripción'}</p>
                             <div class="rifa-meta">
-                                <span class="meta-item">🎫 $${rifa.get('precioNumero')}</span>
+                                <span class="meta-item">🎫 $${precio}</span>
                                 <span class="meta-item">📅 ${new Date(rifa.get('fechaSorteo')).toLocaleDateString()}</span>
-                                <span class="meta-item">🎯 $${rifa.get('metaRecaudacion')}</span>
+                                <span class="meta-item">🎲 ${total} números</span>
                             </div>
                             <div class="rifa-stats">
                                 <div class="stat-mini">
-                                    <span class="number">${vendidos}</span>
-                                    <span class="label">Vendidos</span>
-                                </div>
-                                <div class="stat-mini">
-                                    <span class="number">${total - vendidos}</span>
+                                    <span class="number">${disponibles}</span>
                                     <span class="label">Disponibles</span>
                                 </div>
                                 <div class="stat-mini">
-                                    <span class="number">${porcentaje.toFixed(1)}%</span>
-                                    <span class="label">Completado</span>
-                                </div>
-                                <div class="stat-mini">
-                                    <span class="number">$${recaudado.toFixed(2)}</span>
-                                    <span class="label">Recaudado</span>
+                                    <span class="number">${vendidos}</span>
+                                    <span class="label">Vendidos</span>
                                 </div>
                             </div>
                         </div>
@@ -371,18 +344,17 @@
             async mostrarDetallesRifa(rifa) {
                 this.rifaActual = rifa;
                 
-                // Actualizar información básica
+                // Actualizar información básica SIN meta ni recaudación
                 document.getElementById('rifaTitle').textContent = rifa.get('titulo');
                 document.getElementById('rifaDescription').textContent = rifa.get('descripcion') || '';
                 document.getElementById('rifaPrecio').textContent = rifa.get('precioNumero');
                 document.getElementById('rifaFecha').textContent = new Date(rifa.get('fechaSorteo')).toLocaleDateString();
-                document.getElementById('rifaMeta').textContent = rifa.get('metaRecaudacion');
-                document.getElementById('metaAmount').textContent = rifa.get('metaRecaudacion');
+                document.getElementById('totalNumeros').textContent = rifa.get('totalNumeros');
 
                 // Cargar números de la rifa
                 await this.cargarNumerosRifa(rifa.id);
 
-                // Actualizar estadísticas
+                // Actualizar estadísticas simplificadas
                 this.actualizarEstadisticas();
 
                 // Mostrar sección
@@ -468,24 +440,16 @@
                 const totalNumeros = this.rifaActual.get('totalNumeros');
                 const vendidos = this.numerosRifa.filter(n => n.get('vendido')).length;
                 const disponibles = totalNumeros - vendidos;
-                const recaudado = vendidos * this.rifaActual.get('precioNumero');
-                const porcentaje = (vendidos / totalNumeros) * 100;
-                const meta = this.rifaActual.get('metaRecaudacion');
-                const porcentajeMeta = meta > 0 ? (recaudado / meta) * 100 : 0;
 
-                document.getElementById('statVendidos').textContent = vendidos;
-                document.getElementById('statDisponibles').textContent = disponibles;
-                document.getElementById('statRecaudado').textContent = `$${recaudado.toFixed(2)}`;
-                document.getElementById('statPorcentaje').textContent = `${porcentaje.toFixed(1)}%`;
-
-                // Actualizar barra de progreso
-                document.getElementById('progressFill').style.width = `${porcentajeMeta}%`;
-                document.getElementById('progressText').textContent = `${porcentajeMeta.toFixed(1)}% de la meta completada`;
+                // Solo mostrar información pública SIN recaudación ni meta
+                document.getElementById('numerosDisponibles').textContent = disponibles;
+                document.getElementById('numerosVendidos').textContent = vendidos;
             }
 
             seleccionarNumero(numero) {
                 document.getElementById('modalNumero').textContent = numero;
                 document.getElementById('numeroSeleccionado').value = numero;
+                document.getElementById('modalPrecio').textContent = this.rifaActual.get('precioNumero');
                 document.getElementById('compraModal').style.display = 'flex';
                 
                 // Limpiar formulario
